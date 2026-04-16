@@ -3,109 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Routine Critic AI</title>
+    <title>Critic AI</title>
     <style>
         body {
-            background-color: #1e1e1e;
+            background-color: #0d1117;
             color: #00ff00;
             font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
         }
         textarea {
             width: 100%;
             height: 200px;
+            background-color: #22272e;
+            color: #00ff00;
             border: 1px solid #00ff00;
-            background-color: #222;
-            color: #fff;
-            font-size: 16px;
             padding: 10px;
-            resize: none;
-        }
-        .button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #ff007f;
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: box-shadow 0.3s;
-        }
-        .button:hover {
-            box-shadow: 0 0 20px #ff007f;
-        }
-        .grade {
-            text-align: center;
-            font-size: 24px;
-            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Routine Critic AI</h1>
-    <textarea id="routineInput" placeholder="Enter your daily routine..."></textarea>
-    <button class="button" id="critiqueButton">Critique</button>
-    <div class="grade" id="gradeDisplay"></div>
+    <h1>Welcome to Routine Critic AI</h1>
+    <textarea id="dailyRoutineInput" placeholder="Enter your daily routine..."></textarea>
+    <button id="critiqueButton">Critique</button>
+    <div id="output"></div>
+
     <script>
-        const input = document.getElementById('routineInput');
-        const button = document.getElementById('critiqueButton');
-        const gradeDisplay = document.getElementById('gradeDisplay');
+        const critiqueButton = document.getElementById('critiqueButton');
+        const output = document.getElementById('output');
+        const dailyRoutineInput = document.getElementById('dailyRoutineInput');
 
-        const keywords = {
-            productive: ['achieved', 'completed', 'focused'],
-            procrastination: ['wasted', 'delayed', 'postponed']
-        };
-        
-        const grades = {
-            F: "Failed",
-            D: "Needs Improvement",
-            C: "Satisfactory",
-            B: "Good",
-            A: "Excellent"
-        };
-
-        function analyzeRoutine(routine) {
-            const productiveCount = keywords.productive.reduce((count, word) => count + (routine.includes(word) ? 1 : 0), 0);
-            const procrastinationCount = keywords.procrastination.reduce((count, word) => count + (routine.includes(word) ? 1 : 0), 0);
-            return Math.max(0, Math.min(4, productiveCount - procrastinationCount));
-        }
-
-        function getGrade(score) {
-            return Object.keys(grades)[4 - score];
-        }
-
-        function critiqueRoutine() {
-            const routine = input.value;
-            const score = analyzeRoutine(routine);
-            const grade = getGrade(score);
-            gradeDisplay.innerHTML = `Your grade: ${grade}`;
-            localStorage.setItem('lastGrade', grade);
-        }
-
-        button.addEventListener('click', critiqueRoutine);
-
-        window.addEventListener('keydown', function (e) {
-            if (e.ctrlKey && e.key === 'Enter') {
-                critiqueRoutine();
-            } else if (e.ctrlKey && e.key === 'r') {
-                input.value = '';
-                gradeDisplay.innerHTML = '';
-                localStorage.removeItem('lastGrade');
-            }
+        critiqueButton.addEventListener('click', () => {
+            const routine = dailyRoutineInput.value;
+            const analysis = analyzeRoutine(routine);
+            output.innerHTML = analysis;
+            localStorage.setItem('routineAnalysis', analysis);
         });
 
-        window.onload = function() {
-            const savedGrade = localStorage.getItem('lastGrade');
-            if (savedGrade) {
-                gradeDisplay.innerHTML = `Last saved grade: ${savedGrade}`;
-            }
+        function analyzeRoutine(routine) {
+            let productivityKeywords = ['study', 'work', 'exercise'];
+            let distractionKeywords = ['gaming', 'YouTube', 'TikTok', 'Netflix', 'sleep'];
+            let productScore = 0;
+            let distractionScore = 0;
+
+            productivityKeywords.forEach(keyword => {
+                if (routine.includes(keyword)) productScore++;
+            });
+
+            distractionKeywords.forEach(keyword => {
+                if (routine.includes(keyword)) distractionScore++;
+            });
+
+            let grade = gradingSystem(productScore, distractionScore);
+            return `Your routine analysis: ${grade}`;
         }
+
+        function gradingSystem(productScore, distractionScore) {
+            let grade;
+            if (productScore > distractionScore) {
+                grade = 'A';
+            } else if (productScore === distractionScore) {
+                grade = 'C';
+            } else {
+                grade = 'F';
+            }
+            return grade;
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.ctrlKey && event.key === 'Enter') {
+                critiqueButton.click();
+            }
+            if (event.ctrlKey && event.key === 'r') {
+                dailyRoutineInput.value = '';
+                output.innerHTML = '';
+            }
+        });
     </script>
 </body>
 </html>
