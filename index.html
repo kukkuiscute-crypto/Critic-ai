@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routine Critic AI</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #00ff00;
+            background-color: #222;
+            color: #fff;
+            font-size: 16px;
+            padding: 10px;
+            resize: none;
+        }
+        .button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #ff007f;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+        }
+        .button:hover {
+            box-shadow: 0 0 20px #ff007f;
+        }
+        .grade {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Routine Critic AI</h1>
+    <textarea id="routineInput" placeholder="Enter your daily routine..."></textarea>
+    <button class="button" id="critiqueButton">Critique</button>
+    <div class="grade" id="gradeDisplay"></div>
+    <script>
+        const input = document.getElementById('routineInput');
+        const button = document.getElementById('critiqueButton');
+        const gradeDisplay = document.getElementById('gradeDisplay');
+
+        const keywords = {
+            productive: ['achieved', 'completed', 'focused'],
+            procrastination: ['wasted', 'delayed', 'postponed']
+        };
+        
+        const grades = {
+            F: "Failed",
+            D: "Needs Improvement",
+            C: "Satisfactory",
+            B: "Good",
+            A: "Excellent"
+        };
+
+        function analyzeRoutine(routine) {
+            const productiveCount = keywords.productive.reduce((count, word) => count + (routine.includes(word) ? 1 : 0), 0);
+            const procrastinationCount = keywords.procrastination.reduce((count, word) => count + (routine.includes(word) ? 1 : 0), 0);
+            return Math.max(0, Math.min(4, productiveCount - procrastinationCount));
+        }
+
+        function getGrade(score) {
+            return Object.keys(grades)[4 - score];
+        }
+
+        function critiqueRoutine() {
+            const routine = input.value;
+            const score = analyzeRoutine(routine);
+            const grade = getGrade(score);
+            gradeDisplay.innerHTML = `Your grade: ${grade}`;
+            localStorage.setItem('lastGrade', grade);
+        }
+
+        button.addEventListener('click', critiqueRoutine);
+
+        window.addEventListener('keydown', function (e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                critiqueRoutine();
+            } else if (e.ctrlKey && e.key === 'r') {
+                input.value = '';
+                gradeDisplay.innerHTML = '';
+                localStorage.removeItem('lastGrade');
+            }
+        });
+
+        window.onload = function() {
+            const savedGrade = localStorage.getItem('lastGrade');
+            if (savedGrade) {
+                gradeDisplay.innerHTML = `Last saved grade: ${savedGrade}`;
+            }
+        }
+    </script>
+</body>
+</html>
